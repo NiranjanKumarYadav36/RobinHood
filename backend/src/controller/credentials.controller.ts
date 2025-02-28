@@ -16,7 +16,7 @@ export const registerAccount = async ( req: Request, res: Response ): Promise<vo
       return;
     }
 
-    if (![UserRole.SPONSOR, UserRole.VOLUNTEER].includes(role)) {
+    if (![UserRole.SPONSOR, UserRole.VOLUNTEER, UserRole.VOLUNTEER_T2].includes(role)) {
       res.status(400).json({ message: "Invalid role" });
       return;
     }
