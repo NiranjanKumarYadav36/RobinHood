@@ -1,6 +1,6 @@
 import express from "express"
 import { authenticateJWT } from "../middlewares/authMiddleware";
-import { handlLogin, logoutHandle, registerAccount } from "../controller/credentials.controller";
+import { getCities, getStates, handlLogin, logoutHandle, registerAccount } from "../controller/credentials.controller";
 
 const route = express.Router();
 
@@ -15,6 +15,8 @@ route.get("/protected", authenticateJWT, (req: express.Request, res: express.Res
 route.post("/register", registerAccount)
 route.post("/login", handlLogin)
 route.get("/logout", logoutHandle)
+route.get("/states", getStates)
+route.get("/cities/:state", getCities)
 
 
 export default route;

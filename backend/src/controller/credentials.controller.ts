@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
-import { UserModel, UserRole } from "../models/Food.model";
+import { RegionModel, UserModel, UserRole } from "../models/Food.model";
 import  jwt from "jsonwebtoken";
 
 config();
@@ -88,5 +88,32 @@ export const logoutHandle = async( req: Request, res: Response ): Promise<void> 
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     res.status(404).json({sucess: false, message: error})
+  }
+};
+
+export const getStates = async ( req: Request, res: Response): Promise<void> => {
+  try {
+    const state = await RegionModel.distinct("state")
+    res.status(200).json(state)
+    return;
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const getCities = async ( req: Request, res: Response): Promise<void> => {
+  try {
+    const { state} = req.params
+
+    const cities = await RegionModel.find({ state }).distinct("city")
+
+    if (!cities.length) {
+      res.status(404).json({ message: "No cities found for this state" });
+      return;
+    }
+
+    res.status(200).json(cities);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 };
