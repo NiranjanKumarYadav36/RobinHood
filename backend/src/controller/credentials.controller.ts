@@ -2,11 +2,12 @@ import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 import { UserModel, UserRole } from "../models/Food.model";
+import  jwt from "jsonwebtoken";
 
 config();
 
 // Register Sponsor or Normal Volunteer
-export const registerAccount = async (req: Request, res: Response): Promise<void> => {
+export const registerAccount = async ( req: Request, res: Response ): Promise<void> => {
   try {
     const { name, email, password, phone, role, state, city } = req.body;
 
@@ -34,5 +35,58 @@ export const registerAccount = async (req: Request, res: Response): Promise<void
 
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const handlLogin = async ( req: Request, res: Response ): Promise<void> => {
+  try {
+    const { email, password}  = req.body
+
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required" })
+      return;
+    }
+
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      res.status(401).json({ sucess: false, message: "Invalid email or password" });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      res.status(401).json({ sucess: false, message: "Invalid email or password" });
+      return;
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role, state: user.state, city: user.city },
+      process.env.JWT_SECRET as string,
+      {expiresIn: '1h'}
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 3600000,
+    });
+
+    res.status(200).json({ success: true, message: "Login successful", token: token, user: user.role });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+export const logoutHandle = async( req: Request, res: Response ): Promise<void> => {
+  try {
+    res.clearCookie("token"), {
+      path: "/",
+      httpOnly: true,
+      sameSite: "Lax"
+    }
+
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    res.status(404).json({sucess: false, message: error})
   }
 };
