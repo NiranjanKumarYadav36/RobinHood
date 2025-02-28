@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db";
+import route from "./routes/router";
 
 config();
 
@@ -41,6 +42,8 @@ process.on("unhandledRejection", (err: Error) => {
     process.exit(1);
 });
 
+app.use("/robinhood", route);
+
 // Start the server and listen on the specified port
 const startServer = async () => {
     await connectDB();
@@ -48,3 +51,6 @@ const startServer = async () => {
         console.log(`Server is running on http://localhost:${port}`);
     });
 };
+
+startServer();
+
