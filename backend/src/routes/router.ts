@@ -37,7 +37,8 @@ route.post("/create", createDistributionCenter);
 
 route.post("/food-request", upload.array("images"), createFoodRequest);
 
-route.get("/get_food_deatils", getFooddetails)
+route.get("/get_food_deatils", getFooddetails);
+
 
 
 

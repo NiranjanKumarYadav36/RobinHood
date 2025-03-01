@@ -1,5 +1,5 @@
-
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import axios from "axios"
 import {
   ColumnDef,
   flexRender,
@@ -17,35 +17,13 @@ import {
 
 // Define the data type for a food distribution item.
 export type Distribution = {
-  id: string
-  images: string[] // Array of image URLs
+  _id: string
   foodName: string
-  foodDescription: string
+  images: string[] // Array of image URLs
+  description: string
   expiryDate: string
+  pickupLocation: { latitude: number; longitude: number }
 }
-
-// Sample data with direct image URLs (replace with your own valid URLs)
-const data: Distribution[] = [
-  {
-    id: "1",
-    images: [
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1499028344343-cd173ffc68a9?auto=format&fit=crop&w=400&q=80",
-    ],
-    foodName: "Pizza",
-    foodDescription: "Delicious cheese pizza with extra toppings",
-    expiryDate: "2025-12-31",
-  },
-  {
-    id: "2",
-    images: [
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=80",
-    ],
-    foodName: "Burger",
-    foodDescription: "Juicy burger with fries",
-    expiryDate: "2025-11-30",
-  },
-]
 
 // Define table columns.
 export const columns: ColumnDef<Distribution>[] = [
@@ -60,10 +38,10 @@ export const columns: ColumnDef<Distribution>[] = [
           {distribution.images.map((img, index) => (
             <img
               key={index}
-              src={img}
+              src={`http://localhost:5000/${img}`} // Prepend base URL
               alt={`Food image ${index + 1}`}
               className="w-10 h-10 object-cover rounded cursor-pointer"
-              onClick={() => setSelectedImage?.(img)} // Set image on click
+              onClick={() => setSelectedImage?.(`http://localhost:5000/${img}`)} // Set full image URL
             />
           ))}
         </div>
@@ -75,17 +53,26 @@ export const columns: ColumnDef<Distribution>[] = [
     header: "Food Name",
   },
   {
-    accessorKey: "foodDescription",
+    accessorKey: "description",
     header: "Food Description",
   },
   {
     accessorKey: "expiryDate",
     header: "Expiry Date",
+    cell: ({ row }) => new Date(row.original.expiryDate).toLocaleDateString(), // Format date
+  },
+  {
+    accessorKey: "pickupLocation",
+    header: "Pickup Location",
+    cell: ({ row }) => {
+      const { latitude, longitude } = row.original.pickupLocation
+      return `Lat: ${latitude}, Lng: ${longitude}`
+    },
   },
 ]
 
 // **Modal Component**
-const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null, onClose: () => void }) => {
+const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null; onClose: () => void }) => {
   if (!imageUrl) return null // Don't render if no image is selected
 
   return (
@@ -103,6 +90,27 @@ const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null, onClose: (
 // **Main Table Component**
 export default function DistributionTable() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [data, setData] = useState<Distribution[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.post("http://localhost:5000/robinhood/get_food_deatils", {
+          userId: "67c3072db62388e3d074d812",
+          city: "Mumbai",
+        })
+        setData(response.data.foods)
+        setLoading(false)
+      } catch (err) {
+        setError("Failed to fetch food requests")
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const table = useReactTable({
     data,
@@ -117,40 +125,46 @@ export default function DistributionTable() {
       <ImageModal imageUrl={selectedImage} onClose={() => setSelectedImage(null)} />
 
       <div className="container mx-auto py-10">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
+        {loading ? (
+          <p className="text-center">Loading...</p>
+        ) : error ? (
+          <p className="text-center text-red-500">{error}</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </section>
   )
