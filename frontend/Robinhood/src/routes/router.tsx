@@ -6,6 +6,7 @@ import Register from "../pages/Register/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Map from "../pages/Map/Map";
 import FormPage from "../components/ui/Form/form"
+import Caloriefetch from "../components/ui/caloriefetch/Caloriefetch";
 import DistributionTable from "../components/ui/DistributionTable/distributionTable"
 
 
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />,
+  },
+  {
+    path: "/cal",
+    element: <Caloriefetch />,
   },
   {
     path: "/dashboard",

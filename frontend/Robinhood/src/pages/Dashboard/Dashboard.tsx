@@ -2,6 +2,7 @@ import React from "react";
 import Map from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import GetLocation from "../../components/ui/location/Getlocation";
+import LocationGenerator from "../../components/ui/LocationGenerator/LocationGenerator";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"; // 🚀 More vibrant style
 
@@ -18,6 +19,7 @@ const MapComponent: React.FC = () => {
         style={{ width: "100%", height: "100%" }}
       >
         <GetLocation />
+        <LocationGenerator/>
       </Map>
     </div>
   );
