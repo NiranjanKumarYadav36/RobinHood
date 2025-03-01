@@ -7,9 +7,9 @@ import axiosclient from "../AxiosClient/axiosclient";
 
 // Define different colors for roles
 const roleColors = {
-  distribution_center: "blue",
-  volunteer: "green",
-  donor: "orange",
+  distributionCenters: "blue",
+  volunteers: "green",
+  sponsors : "yellow",
   default: "red",
 };
 
@@ -149,13 +149,10 @@ export default function GetLocation() {
             <span className="w-4 h-4 bg-green-500 rounded-full inline-block mr-2"></span> Volunteer
           </li>
           <li className="flex items-center">
-            <span className="w-4 h-4 bg-orange-500 rounded-full inline-block mr-2"></span> Donor
+            <span className="w-4 h-4 bg-yellow-500 rounded-full inline-block mr-2"></span> Sponsers
           </li>
           <li className="flex items-center">
-            <span className="w-4 h-4 bg-red-500 rounded-full inline-block mr-2"></span> Other
-          </li>
-          <li className="flex items-center">
-            <span className="w-4 h-4 bg-black rounded-full inline-block mr-2"></span> Your Location
+            <span className="w-4 h-4 bg-red-500 rounded-full inline-block mr-2"></span> Red
           </li>
         </ul>
       </div>
