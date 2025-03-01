@@ -17,6 +17,7 @@ interface IUser extends Document {
   role: UserRole;
   state: string;
   city: string;
+  location: string;
 };
 
 const UserSchema = new Schema<IUser>({
@@ -26,7 +27,8 @@ const UserSchema = new Schema<IUser>({
   phone: { type: String },
   role: { type: String, enum: Object.values(UserRole), required: true },
   state: { type: String, required: true },
-  city: { type: String, required: true }
+  city: { type: String, required: true },
+  location: { type: String, required: false},
 });
 
 const UserModel = mongoose.model<IUser>("User", UserSchema);
