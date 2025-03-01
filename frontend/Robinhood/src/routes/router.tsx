@@ -17,7 +17,8 @@ export const router = createBrowserRouter([
   },
   {
     path:"/form",
-    element:<FormPage/>
+    element:<ProtectedRoute/>,
+    children: [{ path: "", element: <FormPage/>}]
   },
   {
     path:"/distributionTable",
