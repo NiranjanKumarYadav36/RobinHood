@@ -138,3 +138,49 @@ export const createDistributionCenter = async (req: Request, res: Response): Pro
 };
 
 
+export const dashBoard = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let { role } = req.params;
+    role = role.toLowerCase() // Ensure lowercase comparison
+
+    // Validate role input
+    if (!Object.values(UserRole).includes(role as UserRole)) {
+      res.status(400).json({ message: "Invalid role provided" });
+      return;
+    }
+
+    let data;
+
+    switch (role) {
+      case UserRole.SPONSOR:
+        data = await UserModel.find({ role: UserRole.SPONSOR }).select("-password");
+        break;
+
+      case UserRole.VOLUNTEER:
+        data = await UserModel.find({ role: UserRole.VOLUNTEER }).select("-password");
+        break;
+
+      case UserRole.VOLUNTEER_T2:
+        data = await UserModel.find({ role: UserRole.VOLUNTEER_T2 }).select("-password");
+        break;
+
+      case UserRole.DC_ADMIN:
+        data = await UserModel.find({ role: UserRole.DC_ADMIN }).select("-password");
+        break;
+
+      case "distribution_centers":
+        data = await DistributionCenterModel.find({});
+        break;
+
+      default:
+        res.status(400).json({ message: "Invalid role type" });
+        return;
+    }
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error("❌ Error fetching dashboard data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+

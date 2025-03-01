@@ -14,7 +14,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
     if (!token) {
         res.status(401).json({ success: false, message: "Access denied. No token provided." });
         return;
-    }
+    };
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
@@ -23,7 +23,7 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
         next();
     } catch (error) {
         res.status(403).json({ success: false, message: "Invalid token." });
-    }
+    };
 };
 
 
