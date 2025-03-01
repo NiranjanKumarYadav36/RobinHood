@@ -1,5 +1,5 @@
 import express from "express"
-import { authenticateJWT, authorize } from "../middlewares/authMiddleware";
+import { authenticateJWT } from "../middlewares/authMiddleware";
 import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter } from "../controller/credentials.controller";
 
 const route = express.Router();
