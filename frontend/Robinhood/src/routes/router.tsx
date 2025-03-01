@@ -4,12 +4,17 @@ import Login from "../pages/Login/Login";
 import Home from "../pages/Home/Home"; 
 import Register from "../pages/Register/Register";
 import Map from "../pages/Map/Map";
+import FormPage from "../components/ui/Form/form"
 
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+  },
+  {
+    path:"/form",
+    element:<FormPage/>
   },
   {
     path: "/login",
