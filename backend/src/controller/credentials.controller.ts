@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
-import { RegionModel, UserModel, UserRole, DistributionCenterModel } from "../models/Food.model";
+import { RegionModel, UserModel, UserRole, DistributionCenterModel, FoodRequestModel } from "../models/Food.model";
 import  jwt from "jsonwebtoken";
 
 config();
@@ -118,7 +118,7 @@ export const getCities = async ( req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const createDistributionCenter = async (req: Request, res: Response): Promise<void> => {
+export const createDistributionCenter = async ( req: Request, res: Response ): Promise<void> => {
   try {
     const { name, state, city, admin } = req.body;
 
@@ -138,7 +138,7 @@ export const createDistributionCenter = async (req: Request, res: Response): Pro
 };
 
 
-export const dashBoard = async (req: Request, res: Response): Promise<void> => {
+export const dashBoard = async ( req: Request, res: Response ): Promise<void> => {
   try {
     let { role, city, state } = req.query; // Use req.query for query parameters
 
@@ -182,5 +182,39 @@ export const dashBoard = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error("❌ Error fetching location data:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+export const createFoodRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId, foodName, images, description, expiryDate } = req.body;
+
+    // Find the user (sponsor) by userId
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    // Extract location details from the user
+    const { city, state, location } = user;
+    const { latitude, longitude } = location;
+
+    // Create the food request
+    const foodRequest = await FoodRequestModel.create({
+      sponsor: userId,
+      foodName,
+      images,
+      description,
+      pickupLocation: { latitude, longitude },
+      city,
+      state,
+      expiryDate
+    });
+
+    res.status(201).json({ message: "Food request created successfully", foodRequest });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 };

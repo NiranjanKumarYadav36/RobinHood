@@ -60,7 +60,9 @@ interface IFoodRequest extends Document {
   status: "pending" | "assigned" | "picked" | "delivered";
   assignedVolunteer?: mongoose.Types.ObjectId;
   createdAt: Date;
-  updatedAt: Date;
+  expiryDate: Date;
+  city: string;
+  state: string;
 }
 
 const FoodRequestSchema = new Schema<IFoodRequest>(
@@ -68,8 +70,13 @@ const FoodRequestSchema = new Schema<IFoodRequest>(
     sponsor: { type: Schema.Types.ObjectId, ref: "User", required: true },
     foodName: { type: String, required: true },
     images: [{ type: String, required: true }],
-    pickupLocation: { type: String, required: true },
-    description: { type: String },
+    pickupLocation: {
+      latitude: { type: Number, required: true },
+      longitude: { type: Number, required: true }
+    }, // Updated location field
+    city: { type: String, required: true }, // City of the request
+    state: { type: String, required: true }, // State of the request
+    expiryDate: { type: Date, required: false }, // Optional expiry date
     status: { type: String, enum: ["pending", "assigned", "picked", "delivered"], default: "pending" },
     assignedVolunteer: { type: Schema.Types.ObjectId, ref: "User" }
   },

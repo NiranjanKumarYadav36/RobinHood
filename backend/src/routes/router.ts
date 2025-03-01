@@ -1,6 +1,6 @@
 import express from "express"
 import { authenticateJWT } from "../middlewares/authMiddleware";
-import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter, dashBoard } from "../controller/credentials.controller";
+import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter, dashBoard, createFoodRequest } from "../controller/credentials.controller";
 
 const route = express.Router();
 
@@ -36,7 +36,7 @@ route.get("/location", dashBoard)
 route.post("/create", createDistributionCenter);
 
 
-
+route.post("/food-request", createFoodRequest)
 
 
 
