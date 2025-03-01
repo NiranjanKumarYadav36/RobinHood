@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
-import { RegionModel, UserModel, UserRole } from "../models/Food.model";
+import { RegionModel, UserModel, UserRole, DistributionCenterModel } from "../models/Food.model";
 import  jwt from "jsonwebtoken";
 
 config();
@@ -116,4 +116,23 @@ export const getCities = async ( req: Request, res: Response): Promise<void> => 
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
+};
+
+export const createDistributionCenter = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { name, state, city, admin } = req.body;
+
+    if (!name || !state || !city || !admin) {
+      res.status(400).json({ success: false, message: "All fields are required." });
+      return;
+    }
+
+    const newDC = new DistributionCenterModel({ name, state, city, admin });
+    await newDC.save();
+
+    res.status(201).json({ success: true, message: "Distribution Center created successfully!", data: newDC });
+} catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+}
 };
