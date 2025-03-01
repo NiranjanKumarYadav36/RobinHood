@@ -140,36 +140,47 @@ export const createDistributionCenter = async (req: Request, res: Response): Pro
 
 export const dashBoard = async (req: Request, res: Response): Promise<void> => {
   try {
-    let { role, city, state } = req.query; // Use req.query for query parameters
+    let { role, city, state } = req.query;
 
-    if (!role || !city) {
-      res.status(400).json({ message: "Missing required parameters: role or city" });
+    if (!role || !city || !state) {
+      res.status(400).json({ message: "Missing required parameters: role, city, or state" });
       return;
     }
 
-    role = (role as string).toLowerCase(); // Convert role to lowercase for comparison
+    role = (role as string).toLowerCase();
 
     let data;
 
     switch (role) {
       case UserRole.VOLUNTEER_T2:
+        // Find sponsors in the given state or Maharashtra
+        const sponsors = await UserModel.find({
+          role: UserRole.SPONSOR,
+          state: { $in: [state, "Maharashtra"] },
+        }).select("-password");
+
+        // Find food requests from those sponsors
+        const sponsorIds = sponsors.map(sponsor => sponsor._id);
+        const foodRequests = await FoodRequestModel.find({ sponsor: { $in: sponsorIds } });
+
         data = {
           volunteers: await UserModel.find({ role: UserRole.VOLUNTEER, city }).select("-password"),
-          sponsors: await UserModel.find({ role: UserRole.SPONSOR, city }).select("-password"),
-          distributionCenters: await DistributionCenterModel.find({ city })
+          sponsors,
+          distributionCenters: await DistributionCenterModel.find({ city }),
+          foodRequests, // Added food request details
         };
         break;
 
       case UserRole.VOLUNTEER:
         data = {
           volunteers: await UserModel.find({ role: UserRole.VOLUNTEER, city }).select("-password"),
-          distributionCenters: await DistributionCenterModel.find({ city })
+          distributionCenters: await DistributionCenterModel.find({ city }),
         };
         break;
 
       case UserRole.SPONSOR:
         data = {
-          distributionCenters: await DistributionCenterModel.find({ city })
+          distributionCenters: await DistributionCenterModel.find({ city }),
         };
         break;
 
@@ -180,10 +191,11 @@ export const dashBoard = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ success: true, data });
   } catch (error) {
-    console.error("❌ Error fetching location data:", error);
+    console.error("❌ Error fetching dashboard data:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 export const createFoodRequest = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -266,3 +278,9 @@ export const getFooddetails = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+
+
+// volunteer id
+// task1
+// task2
