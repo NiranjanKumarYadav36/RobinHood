@@ -2,8 +2,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axiosclient from "../components/ui/AxiosClient/axiosclient";
 
 interface User {
+  location?: any; // Ensure this is optional if not always available
   id: string;
-  role: string;
+  user: string;
   state: string;
   city: string;
 }
@@ -20,19 +21,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    verifyUser();
-  }, []);
-
+  // Define verifyUser before using it
   const verifyUser = async () => {
     try {
       const response = await axiosclient.get("/protected", { withCredentials: true });
       if (response.data.success) {
-        setUser(response.data.user);
-        console.log(response.data.user)
-      } else {
-        setUser(null);
-        console.log("error")
+        const { id, user, state, city, location } = response.data; // Ensure all fields exist
+        setUser({ id, user, state, city, location });
+
+        console.log("User successfully verified:", { id, user, state, city, location });
       }
     } catch (error) {
       console.error("User verification failed:", error);
@@ -41,6 +38,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setLoading(false);
     }
   };
+
+  // useEffect should have verifyUser properly referenced
+  useEffect(() => {
+    verifyUser();
+  }, []); // No missing dependencies
 
   return (
     <AuthContext.Provider value={{ user, loading, verifyUser }}>
@@ -54,3 +56,4 @@ export const useAuth = (): AuthContextType => {
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
+
