@@ -16,8 +16,8 @@ export default function Header() {
         <nav className="hidden md:flex gap-6">
           <Link to="/" className="hover:text-gray-300 transition">Home</Link>
           <Link to="/about" className="hover:text-gray-300 transition">About Us</Link>
-          <Link to="/get-involved" className="hover:text-gray-300 transition">Get Involved</Link>
-          <Link to="/contact" className="hover:text-gray-300 transition">Contact</Link>
+          <Link to="/dashboard" className="hover:text-gray-300 transition">Dashboard</Link>
+          <Link to="/form" className="hover:text-gray-300 transition">Donate </Link>
         </nav>
 
         {/* Join Now Button (ONLY visible on Desktop) */}

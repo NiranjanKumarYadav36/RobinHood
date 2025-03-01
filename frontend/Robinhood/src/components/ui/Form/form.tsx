@@ -80,7 +80,7 @@ function FormPage() {
   return (
     <>
       {/* <Header /> */}
-      <section className="max-w-4xl p-6 mx-auto bg-green-100 rounded-md shadow-md dark:bg-gray-800 mt-15">
+      <section className="max-w-4xl p-6 mx-auto bg-green-100 border-b-4 border-green-600 rounded-lg shadow-md dark:bg-gray-800 mt-15">
         <div className="max-w-xl mx-auto p-4">
           <h1 className="text-3xl font-bold text-green-800 capitalize dark:text-white mb-4">Submit Food Details</h1>
           
