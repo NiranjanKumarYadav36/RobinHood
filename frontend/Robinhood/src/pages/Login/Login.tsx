@@ -24,49 +24,66 @@ export default function Login() {
         e.preventDefault();
         setError(""); // Reset error message
 
-        try {
-            const response = await axiosclient.post(
-                "/login",
-                { email, password },
-                { withCredentials: true }
-            );
-            console.log("Login Successful:", response.data);
+    try {
+      const response = await axiosclient.post(
+        "/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-            await verifyUser(); // 🔹 Fetch user data after login
+      if (response.data.success) {
+        console.log("Login Successful:", response.data);
 
-            navigate("/dashboard"); // Redirect only after user state is updated
-        } catch (error) {
-            console.error("Login Error:", error.response?.data || error.message);
-            setError(
-                error.response?.data?.message || "Login failed. Please try again."
-            );
-        }
-    };
+        // 🔹 Store user data in local storage
+        localStorage.setItem("user", response.data.user.user);
 
-    return (
-        <div className='min-h-screen bg-gradient-to-br from-green-50 to-green-300 flex items-center justify-center p-4'>
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75 }}
-                className='w-full max-w-md'
-            >
-                <div className="bg-green-600 rounded-3xl shadow-xl ring-2 ring-green-600/50 shadow-green-800/50 p-8 space-y-6">
-                    <div className="text-center space-y-2">
-                        <h1 className='text-white text-3xl font-bold tracking-tighter'>Welcome Back</h1>
-                        <p className='text-green-50'>Enter Your Credentials to access your account</p>
-                    </div>
-                    {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-                    <form onSubmit={handleLogin} className='space-y-4'>
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="text-white">Email</Label>
-                            <Input id='email' type='email' placeholder='testYoutube@gmail.com'
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                className='bg-white'
-                                required
-                            />
-                        </div>
+        await verifyUser(); // Fetch user data after login
+
+        navigate("/dashboard"); // Redirect to dashboard
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login Error:", error.response?.data || error.message);
+      setError(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-300 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.75 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-green-600 rounded-3xl shadow-xl ring-2 ring-green-600/50 shadow-green-800/50 p-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-white text-3xl font-bold tracking-tighter">
+              Welcome Back
+            </h1>
+            <p className="text-green-50">
+              Enter Your Credentials to access your account
+            </p>
+          </div>
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-white">
+                Email
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="testYoutube@gmail.com"
+                value={email}    
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-white"
+                required
+              />
+            </div>
 
                         <div className="space-y-2">
                             <Label htmlFor="password" className="text-white">Password</Label>
