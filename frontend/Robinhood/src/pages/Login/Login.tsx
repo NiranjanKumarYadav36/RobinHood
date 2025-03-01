@@ -29,11 +29,19 @@ export default function Login() {
         { email, password },
         { withCredentials: true }
       );
-      console.log("Login Successful:", response.data);
 
-      await verifyUser(); // 🔹 Fetch user data after login
+      if (response.data.success) {
+        console.log("Login Successful:", response.data);
 
-      navigate("/dashboard"); // Redirect only after user state is updated
+        // 🔹 Store user data in local storage
+        localStorage.setItem("user", response.data.user.user);
+
+        await verifyUser(); // Fetch user data after login
+
+        navigate("/dashboard"); // Redirect to dashboard
+      } else {
+        setError("Invalid credentials. Please try again.");
+      }
     } catch (error) {
       console.error("Login Error:", error.response?.data || error.message);
       setError(
@@ -69,7 +77,7 @@ export default function Login() {
                 id="email"
                 type="email"
                 placeholder="testYoutube@gmail.com"
-                value={email}
+                value={email}    
                 onChange={(e) => setEmail(e.target.value)}
                 className="bg-white"
                 required
