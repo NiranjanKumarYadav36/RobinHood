@@ -111,8 +111,12 @@ function Register() {
                 {/* <div>This is for phone number</div> */}
 
                 <div className='grid grid-cols-2 gap-7'>
-                  <ComboBox title="State"></ComboBox>
-                  <ComboBox title="City"></ComboBox>
+                  <ComboBox title="State" width='w-[178px]'></ComboBox>
+                  <ComboBox title="City" width='w-[178px]'></ComboBox>
+                </div>
+                
+                <div className='grid grid-cols-2 gap-7'>
+                  <ComboBox title="Role" width='w-[385px]'></ComboBox>
                 </div>
 
                 <br />

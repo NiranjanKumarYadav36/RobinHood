@@ -32,6 +32,8 @@ import {
 
 interface ComboboxFormProps {
   title: string;
+  width: string;
+
 }
 
 export default function ComboboxForm(props: ComboboxFormProps) {
@@ -79,7 +81,7 @@ export default function ComboboxForm(props: ComboboxFormProps) {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[178px] justify-between",
+                        `${props.width} justify-between`,
                         !field.value && "text-muted-foreground"
                       )}
                     >
