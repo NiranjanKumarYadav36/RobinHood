@@ -136,3 +136,51 @@ export const createDistributionCenter = async (req: Request, res: Response): Pro
     res.status(500).json({ success: false, message: "Server Error" });
 }
 };
+
+
+export const dashBoard = async (req: Request, res: Response): Promise<void> => {
+  try {
+    let { role, city, state } = req.query; // Use req.query for query parameters
+
+    if (!role || !city) {
+      res.status(400).json({ message: "Missing required parameters: role or city" });
+      return;
+    }
+
+    role = (role as string).toLowerCase(); // Convert role to lowercase for comparison
+
+    let data;
+
+    switch (role) {
+      case UserRole.VOLUNTEER_T2:
+        data = {
+          volunteers: await UserModel.find({ role: UserRole.VOLUNTEER, city }).select("-password"),
+          sponsors: await UserModel.find({ role: UserRole.SPONSOR, city }).select("-password"),
+          distributionCenters: await DistributionCenterModel.find({ city })
+        };
+        break;
+
+      case UserRole.VOLUNTEER:
+        data = {
+          volunteers: await UserModel.find({ role: UserRole.VOLUNTEER, city }).select("-password"),
+          distributionCenters: await DistributionCenterModel.find({ city })
+        };
+        break;
+
+      case UserRole.SPONSOR:
+        data = {
+          distributionCenters: await DistributionCenterModel.find({ city })
+        };
+        break;
+
+      default:
+        res.status(400).json({ message: "Invalid role type" });
+        return;
+    }
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    console.error("❌ Error fetching location data:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
