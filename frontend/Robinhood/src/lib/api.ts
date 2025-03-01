@@ -18,17 +18,35 @@ export interface LocationResponse {
 }
 
 export async function getLocation(): Promise<[number, number]> {
+    return new Promise((resolve) => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve([position.coords.longitude, position.coords.latitude]);
+          },
+          async (error) => {
+            console.error("Geolocation error:", error);
+            resolve(await getLocationFromIP());
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        resolve(getLocationFromIP());
+      }
+    });
+  }
+  
+  async function getLocationFromIP(): Promise<[number, number]> {
     try {
       const response = await fetch("http://ip-api.com/json/");
       const json = (await response.json()) as LocationResponse;
-  
       if (typeof json.lat === "number" && typeof json.lon === "number") {
-        return [json.lon, json.lat]; // Ensures tuple type [number, number]
+        return [json.lon, json.lat];
       }
     } catch (error) {
-      console.error("Error fetching location:", error);
+      console.error("Error fetching location from IP:", error);
     }
-  
-    return middleOfMumbai; // Ensure fallback also has correct type
+    return middleOfMumbai;
   }
+  
   
