@@ -70,6 +70,7 @@ const FoodRequestSchema = new Schema<IFoodRequest>(
     sponsor: { type: Schema.Types.ObjectId, ref: "User", required: true },
     foodName: { type: String, required: true },
     images: [{ type: String, required: true }],
+    description: { type: String },
     pickupLocation: {
       latitude: { type: Number, required: true },
       longitude: { type: Number, required: true }

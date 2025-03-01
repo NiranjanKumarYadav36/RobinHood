@@ -1,6 +1,6 @@
 import express from "express"
 import { authenticateJWT } from "../middlewares/authMiddleware";
-import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter, dashBoard, createFoodRequest } from "../controller/credentials.controller";
+import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter, dashBoard, createFoodRequest, getFooddetails } from "../controller/credentials.controller";
 import path from "path";
 import { GridFsStorage } from "multer-gridfs-storage";
 import {upload} from "../multer/multerConfig"
@@ -37,7 +37,7 @@ route.post("/create", createDistributionCenter);
 
 route.post("/food-request", upload.array("images"), createFoodRequest);
 
-
+route.get("/get_food_deatils", getFooddetails)
 
 
 

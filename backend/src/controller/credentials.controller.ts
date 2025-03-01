@@ -2,17 +2,17 @@ import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
 import { RegionModel, UserModel, UserRole, DistributionCenterModel, FoodRequestModel } from "../models/Food.model";
-import  jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 config();
 
 // Register Sponsor or Normal Volunteer
-export const registerAccount = async ( req: Request, res: Response ): Promise<void> => {
+export const registerAccount = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, phone, role, state, city } = req.body;
 
     if (!name || !email || !password || !role || !state || !city) {
-      res.status(400).json({ sucess:false, message: "All fields are required" });
+      res.status(400).json({ sucess: false, message: "All fields are required" });
       return;
     }
 
@@ -38,9 +38,9 @@ export const registerAccount = async ( req: Request, res: Response ): Promise<vo
   }
 };
 
-export const handlLogin = async ( req: Request, res: Response ): Promise<void> => {
+export const handlLogin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password}  = req.body
+    const { email, password } = req.body
 
     if (!email || !password) {
       res.status(400).json({ message: "Email and password are required" })
@@ -62,7 +62,7 @@ export const handlLogin = async ( req: Request, res: Response ): Promise<void> =
     const token = jwt.sign(
       { id: user._id, role: user.role, state: user.state, city: user.city },
       process.env.JWT_SECRET as string,
-      {expiresIn: '1h'}
+      { expiresIn: '1h' }
     );
 
     res.cookie("token", token, {
@@ -77,7 +77,7 @@ export const handlLogin = async ( req: Request, res: Response ): Promise<void> =
   }
 };
 
-export const logoutHandle = async( req: Request, res: Response ): Promise<void> => {
+export const logoutHandle = async (req: Request, res: Response): Promise<void> => {
   try {
     res.clearCookie("token"), {
       path: "/",
@@ -87,11 +87,11 @@ export const logoutHandle = async( req: Request, res: Response ): Promise<void> 
 
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    res.status(404).json({sucess: false, message: error})
+    res.status(404).json({ sucess: false, message: error })
   }
 };
 
-export const getStates = async ( req: Request, res: Response): Promise<void> => {
+export const getStates = async (req: Request, res: Response): Promise<void> => {
   try {
     const state = await RegionModel.distinct("state")
     res.status(200).json(state)
@@ -101,9 +101,9 @@ export const getStates = async ( req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const getCities = async ( req: Request, res: Response): Promise<void> => {
+export const getCities = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { state} = req.params
+    const { state } = req.params
 
     const cities = await RegionModel.find({ state }).distinct("city")
 
@@ -118,7 +118,7 @@ export const getCities = async ( req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const createDistributionCenter = async ( req: Request, res: Response ): Promise<void> => {
+export const createDistributionCenter = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, state, city, admin } = req.body;
 
@@ -131,14 +131,14 @@ export const createDistributionCenter = async ( req: Request, res: Response ): P
     await newDC.save();
 
     res.status(201).json({ success: true, message: "Distribution Center created successfully!", data: newDC });
-} catch (error) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
-}
+  }
 };
 
 
-export const dashBoard = async ( req: Request, res: Response ): Promise<void> => {
+export const dashBoard = async (req: Request, res: Response): Promise<void> => {
   try {
     let { role, city, state } = req.query; // Use req.query for query parameters
 
@@ -230,6 +230,39 @@ export const createFoodRequest = async (req: Request, res: Response): Promise<vo
     res.status(201).json({ message: "Food request created successfully", foodRequest });
   } catch (error) {
     console.error("Error in createFoodRequest:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+export const getFooddetails = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId, city } = req.body;
+
+    if (!userId || !city) {
+      res.status(400).json({ message: "User ID and city are required." });
+      return;
+    }
+
+    // Find the volunteer T2
+    const volunteerT2 = await UserModel.findById(userId);
+    if (!volunteerT2) {
+      res.status(404).json({ message: "Volunteer not found" });
+      return;
+    }
+
+    // Ensure the volunteer is assigned to the requested city
+    if (volunteerT2.city !== city) {
+      res.status(403).json({ message: "You are not authorized to access food details for this city." });
+      return;
+    }
+
+    // Fetch food requests for the same city
+    const foods = await FoodRequestModel.find({ city });
+
+    res.status(200).json({ message: "Food requests fetched successfully", foods });
+  } catch (error) {
+    console.error("Error fetching food details:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
