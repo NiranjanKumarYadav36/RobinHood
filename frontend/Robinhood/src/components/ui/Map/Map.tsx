@@ -1,7 +1,7 @@
 import React from "react";
 import Map from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import GetLocation from "./location/getlocation";
+import GetLocation from "../location/Getlocation"; 
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 

@@ -1,10 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import ProtectedRoute from "./ProtectedRoutes";
+import { ProtectedRoute } from "./ProtectedRoutes";
 import Login from "../pages/Login/Login";
 import Home from "../pages/Home/Home"; 
 import Register from "../pages/Register/Register";
-import Map from "../pages/Map/Map";
-
+import Dashboard from "../pages/Dashboard/Dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -13,31 +12,26 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login/>,
+    element: <Login />,
   },
   {
     path: "/register",
-    element: <Register/>,
+    element: <Register />,
   },
   {
-    path:"/map",
-    element: <Map/>,
+    path: "/dashboard",
+    element: <ProtectedRoute />, // ✅ Protected route wrapper
+    children: [{ path: "", element: <Dashboard /> }],
   },
   {
     path: "/admin",
-    element: (
-      <ProtectedRoute allowedRoles={["admin"]}>
-        <div></div>
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute />, // ✅ Protected route wrapper
+    children: [{ path: "", element: <div>Admin Page</div> }],
   },
   {
     path: "/user",
-    element: (
-      <ProtectedRoute allowedRoles={["user", "admin"]}>
-        <div></div>
-      </ProtectedRoute>
-    ),
+    element: <ProtectedRoute allowedRoles={["user", "admin"]} />,
+    children: [{ path: "", element: <div>User Page</div> }],
   },
-  { path: "*", element: <Navigate to="/home" replace /> },
+  { path: "*", element: <Navigate to="/" replace /> },
 ]);

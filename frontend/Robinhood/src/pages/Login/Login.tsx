@@ -6,7 +6,6 @@ import { Checkbox } from "../../components/ui/checkbox";
 import { Label } from "../../components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate, Link } from 'react-router-dom';
-import axios from "axios";
 import axiosclient from '../../components/ui/AxiosClient/axiosclient';
 
 export default function Login() {
@@ -17,7 +16,7 @@ export default function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: { preventDefault: () => void; }) => {
         e.preventDefault();
         setError(""); // Reset error message
         try {
@@ -26,7 +25,7 @@ export default function Login() {
                 password
             });
             console.log("Login Successful:", response.data);
-            navigate("/dashboard"); // Redirect to dashboard or homepage
+            navigate("/dashboard"); // Redirect to dashboard 
         } catch (error) {
             console.error("Login Error:", error.response?.data || error.message);
             setError(error.response?.data?.message || "Login failed. Please try again.");
