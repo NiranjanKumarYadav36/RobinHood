@@ -13,10 +13,13 @@ const port = process.env.PORT || 5050;
 
 app.use(
     cors({
-      origin: process.env.FRONTEND_URL,
-      credentials: true,
+        origin: ["http://localhost:5173", "http://localhost:5174"], // Allow both
+        credentials: true,
     })
 );
+
+
+
 
 app.use(cookieParser());
 
