@@ -17,7 +17,11 @@ interface IUser extends Document {
   role: UserRole;
   state: string;
   city: string;
-  location: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  isAvailable?: boolean; // Only applicable for normal volunteers
 };
 
 const UserSchema = new Schema<IUser>({
@@ -28,7 +32,20 @@ const UserSchema = new Schema<IUser>({
   role: { type: String, enum: Object.values(UserRole), required: true },
   state: { type: String, required: true },
   city: { type: String, required: true },
-  location: { type: String, required: false},
+  location: {
+    latitude: { type: Number, required: false, default: 19.0760 }, // Mumbai Latitude
+    longitude: { type: Number, required: false, default: 72.8777 } // Mumbai Longitude
+  },
+  isAvailable: { type: Boolean, default: true }
+});
+
+
+// Apply `isAvailable` only to "volunteer" role
+UserSchema.pre("save", function (next) {
+  if (this.role !== UserRole.VOLUNTEER) {
+    this.isAvailable = undefined;
+  }
+  next();
 });
 
 const UserModel = mongoose.model<IUser>("User", UserSchema);
@@ -67,13 +84,21 @@ interface IDistributionCenter extends Document {
   state: string;
   city: string;
   admin: mongoose.Types.ObjectId;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 const DistributionCenterSchema = new Schema<IDistributionCenter>({
   name: { type: String, required: true },
   state: { type: String, required: true },
   city: { type: String, required: true },
-  admin: { type: Schema.Types.ObjectId, ref: "User", required: true }
+  admin: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  location: {
+    latitude: { type: Number, required: true },
+    longitude: { type: Number, required: true }
+  }
 });
 
 const DistributionCenterModel = mongoose.model<IDistributionCenter>("DistributionCenter", DistributionCenterSchema);

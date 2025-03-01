@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import {UserModel} from "../models/Food.model";
+import { JwtPayload } from "jsonwebtoken";
 
 // Extend the Express Request type to include 'user'
 interface AuthRequest extends Request {
@@ -23,3 +25,26 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
         res.status(403).json({ success: false, message: "Invalid token." });
     }
 };
+
+
+
+
+
+
+
+
+
+
+// // Middleware to check authorization based on roles
+// export const authorize = (roles: string[]) => {
+//     return (req: Request, res: Response, next: NextFunction): void => {
+//         const user = (req as any).user;
+        
+//         if (!user || !roles.includes(user.role)) {
+//             res.status(403).json({ message: "Forbidden: You do not have access to this resource" });
+//             return;
+//         }
+        
+//         next();
+//     };
+// };
