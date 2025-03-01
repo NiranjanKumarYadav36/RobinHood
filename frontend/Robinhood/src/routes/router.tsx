@@ -2,7 +2,8 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoutes";
 import Login from "../pages/Login/Login";
 import Home from "../pages/Home/Home"; 
-import Register from "../pages/Register/Register"
+import Register from "../pages/Register/Register";
+import Map from "../pages/Map/Map";
 
 
 export const router = createBrowserRouter([
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register/>,
+  },
+  {
+    path:"/map",
+    element: <Map/>,
   },
   {
     path: "/admin",
