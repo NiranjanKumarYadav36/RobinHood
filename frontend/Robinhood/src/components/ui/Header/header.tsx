@@ -12,15 +12,6 @@ import { Button } from "../button";
 export default function Header() {
   const { user, verifyUser } = useAuth(); // ✅ Get user & verifyUser from context
 
-  const handleLogout = async () => {
-    try {
-      await axiosclient.get("/logout", { withCredentials: true }); // Call backend logout API
-      await verifyUser(); // ✅ Refresh user data after logout
-      window.location.href = "/login"; // Redirect to login page
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
 
   // Dynamically render header based on user role
   // console.log(user.user); 
