@@ -1,8 +1,7 @@
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
-
-import { cn } from "../../lib/utils"
-import { Button } from "../../components/ui/button"
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "../../components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -10,23 +9,21 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "../../components/ui/command"
+} from "../../components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "../../components/ui/popover"
+} from "../../components/ui/popover";
 
-const frameworks = [
-  { value: "next.js", label: "Next.js" },
-  { value: "sveltekit", label: "SvelteKit" },
-  { value: "nuxt.js", label: "Nuxt.js" },
-  { value: "remix", label: "Remix" },
-  { value: "astro", label: "Astro" },
-]
+export function ComboBox({ title, width, value, onSelect, options = [] }) {
+  const [open, setOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
 
-export function ComboBox({ title, width, value, onSelect }) {
-  const [open, setOpen] = React.useState(false)
+  // Update search state and filter options dynamically
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -35,37 +32,43 @@ export function ComboBox({ title, width, value, onSelect }) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={`${width} justify-between`}
+          className={"w-[150px] justify-content"}
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : `Select ${title}...`}
+          {value ? value : `Select ${title}...`}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className={`${width} p-0`}>
+      <PopoverContent className={`w-[150px] p-0`}>
         <Command>
-          <CommandInput placeholder={`Search ${title}...`} />
+          <CommandInput
+            placeholder={`Search ${title}...`}
+            value={search}
+            onInput={(e) => setSearch(e.target.value)} // Corrected input event handling
+          />
           <CommandList>
-            <CommandEmpty>No {title} found.</CommandEmpty>
-            <CommandGroup>
-              {frameworks.map((framework) => (
-                <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={() => {
-                    onSelect(framework.value)
-                    setOpen(false)
-                  }}
-                >
-                  {framework.label}
-                  <Check className={cn("ml-auto", value === framework.value ? "opacity-100" : "opacity-0")} />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {filteredOptions.length === 0 ? (
+              <CommandEmpty>No {title} found.</CommandEmpty>
+            ) : (
+              <CommandGroup>
+                {filteredOptions.map((option) => (
+                  <CommandItem
+                    key={option}
+                    value={option}
+                    onSelect={() => {
+                      onSelect(option);
+                      setOpen(false);
+                      setSearch(""); // Reset search field after selection
+                    }}
+                  >
+                    {option}
+                    <Check className={cn("ml-auto", value === option ? "opacity-100" : "opacity-0")} />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }

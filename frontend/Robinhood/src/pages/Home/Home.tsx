@@ -1,15 +1,18 @@
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { FaHandsHelping, FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+
+  const navigate = useNavigate(); // Hook for navigation
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       {/* Hero Section */}
       <section className="bg-green-600 text-white text-center py-20">
         <h1 className="text-5xl font-bold">Robin Hood Army Mumbai</h1>
         <p className="mt-4 text-lg">Join us in fighting hunger and food waste!</p>
-        <Button className="mt-6 bg-white text-green-600 hover:bg-gray-200">Join Us</Button>
+        <Button className="mt-6 bg-white text-green-600 hover:bg-gray-200" onClick={() => navigate("/login")}>Join Us</Button>
       </section>
 
       {/* About Section */}
