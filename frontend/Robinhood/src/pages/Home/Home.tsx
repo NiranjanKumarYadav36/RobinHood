@@ -1,6 +1,5 @@
-import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { FaHandsHelping, FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaHandsHelping} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Footer from "../../components/ui/Footer/footer"
 import Header from "../../components/ui/Header/header"
