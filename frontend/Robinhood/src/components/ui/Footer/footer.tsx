@@ -3,7 +3,7 @@ import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white py-10 px-6 text-center">
+    <footer className="bg-gray-900 text-white py-10 px-6 text-center pt-6">
       <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
         {/* Social Media Icons */}
         <div className="flex gap-6 mb-4 md:mb-0">

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Marker, Popup, useMap } from "@vis.gl/react-maplibre";
 import { useAuth } from "../../../context/AuthContext";
 import axiosclient from "../AxiosClient/axiosclient";
-import { MapPin, Circle } from "lucide-react"; // Lucide icons
+import { MapPin, Warehouse, User, Users } from "lucide-react"; // Custom icons
 
 interface DataPoint {
   id: string;
@@ -15,8 +15,9 @@ interface DataPoint {
 export default function GetLocation() {
   const { user } = useAuth();
   const [locations, setLocations] = useState<DataPoint[]>([]);
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null); // State to track selected marker
   const mapContext = useMap();
-  const map = mapContext?.current; // Ensure correct reference
+  const map = mapContext?.current;
 
   useEffect(() => {
     if (!map || !user) return;
@@ -68,24 +69,36 @@ export default function GetLocation() {
   return (
     <>
       {locations.map((location) => (
-        <Marker key={location.id} longitude={location.longitude} latitude={location.latitude}>
-          <div className="flex items-center justify-center">
+        <Marker
+          key={location.id}
+          longitude={location.longitude}
+          latitude={location.latitude}
+          onClick={() => setSelectedMarker(location.id)} // Open popup on click
+        >
+          <div className="relative flex flex-col items-center cursor-pointer">
+            {/* Icon based on role */}
             {location.user === "distribution_center" ? (
-              <Circle className="text-blue-500 w-6 h-6" />
+              <Warehouse className="text-blue-500 w-7 h-7" />
             ) : location.user === "volunteer" ? (
-              <MapPin className="text-green-500 w-6 h-6" />
+              <User className="text-green-500 w-7 h-7" />
+            ) : location.user === "donor" ? (
+              <Users className="text-yellow-500 w-7 h-7" />
             ) : (
-              <MapPin className="text-red-500 w-6 h-6" />
+              <MapPin className="text-red-500 w-7 h-7" />
+            )}
+
+            {/* Show Popup when clicked */}
+            {selectedMarker === location.id && (
+              <Popup longitude={location.longitude} latitude={location.latitude} onClose={() => setSelectedMarker(null)}>
+                <h3 className="text-sm font-semibold">{location.name}</h3>
+                <p className="text-xs text-gray-600">
+                  Role: {location.user.replace("_", " ")}
+                </p>
+              </Popup>
             )}
           </div>
         </Marker>
       ))}
-
-      {user?.location?.longitude && user?.location?.latitude && (
-        <Popup longitude={user.location.longitude} latitude={user.location.latitude}>
-          <h3 className="text-sm font-semibold">Your location: {user.city}, {user.state}</h3>
-        </Popup>
-      )}
     </>
   );
 }

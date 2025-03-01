@@ -4,9 +4,8 @@ import Login from "../pages/Login/Login";
 import Home from "../pages/Home/Home"; 
 import Register from "../pages/Register/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
-import Map from "../pages/Map/Map";
-import FormPage from "../components/ui/Form/form"
 import Caloriefetch from "../components/ui/caloriefetch/Caloriefetch";
+import Donate from "../pages/Donate/Donate";
 import DistributionTable from "../components/ui/DistributionTable/distributionTable"
 
 
@@ -17,12 +16,7 @@ export const router = createBrowserRouter([
   },
   {
     path:"/form",
-    element:<ProtectedRoute/>,
-    children: [{ path: "", element: <FormPage/>}]
-  },
-  {
-    path:"/distributionTable",
-    element:<DistributionTable/>
+    element:<FormPage/>
   },
   {
     path: "/login",
