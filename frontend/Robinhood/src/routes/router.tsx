@@ -6,6 +6,7 @@ import Register from "../pages/Register/Register";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Caloriefetch from "../components/ui/caloriefetch/Caloriefetch";
 import Donate from "../pages/Donate/Donate";
+import DistributionTable from "../components/ui/DistributionTable/distributionTable"
 
 
 export const router = createBrowserRouter([
@@ -15,8 +16,7 @@ export const router = createBrowserRouter([
   },
   {
     path:"/form",
-    element:<ProtectedRoute/>,
-    children: [{ path: "", element: <Donate />}]
+    element:<FormPage/>
   },
   {
     path: "/login",

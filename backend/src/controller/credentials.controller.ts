@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
-import { RegionModel, UserModel, UserRole, DistributionCenterModel } from "../models/Food.model";
+import { RegionModel, UserModel, UserRole, DistributionCenterModel, FoodRequestModel } from "../models/Food.model";
 import  jwt from "jsonwebtoken";
 
 config();
@@ -118,7 +118,7 @@ export const getCities = async ( req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const createDistributionCenter = async (req: Request, res: Response): Promise<void> => {
+export const createDistributionCenter = async ( req: Request, res: Response ): Promise<void> => {
   try {
     const { name, state, city, admin } = req.body;
 
@@ -138,7 +138,7 @@ export const createDistributionCenter = async (req: Request, res: Response): Pro
 };
 
 
-export const dashBoard = async (req: Request, res: Response): Promise<void> => {
+export const dashBoard = async ( req: Request, res: Response ): Promise<void> => {
   try {
     let { role, city, state } = req.query; // Use req.query for query parameters
 
@@ -182,5 +182,54 @@ export const dashBoard = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error("❌ Error fetching location data:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const createFoodRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId, foodName, description, expiry } = req.body;
+
+    console.log("Uploaded Files:", req.files);
+
+    if (!userId || !foodName || !expiry) {
+      res.status(400).json({ message: "User ID, food name, and expiry date are required." });
+      return;
+    }
+
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const { city, state, location } = user;
+    if (!location || !location.latitude || !location.longitude) {
+      res.status(400).json({ message: "User location is missing" });
+      return;
+    }
+
+    // ✅ Store relative file paths
+    const uploadedImages = req.files ? (req.files as Express.Multer.File[]).map(file => `uploads/${file.filename}`) : [];
+
+    if (uploadedImages.length === 0) {
+      res.status(400).json({ message: "At least one image is required." });
+      return;
+    }
+
+    const foodRequest = await FoodRequestModel.create({
+      sponsor: userId,
+      foodName,
+      images: uploadedImages, // Store relative paths
+      description,
+      pickupLocation: { latitude: location.latitude, longitude: location.longitude },
+      city,
+      state,
+      expiryDate: expiry,
+    });
+
+    res.status(201).json({ message: "Food request created successfully", foodRequest });
+  } catch (error) {
+    console.error("Error in createFoodRequest:", error);
+    res.status(500).json({ message: "Server error", error });
   }
 };
