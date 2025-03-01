@@ -1,13 +1,14 @@
 import express from "express"
 import { authenticateJWT } from "../middlewares/authMiddleware";
 import { getCities, getStates, handlLogin, logoutHandle, registerAccount, createDistributionCenter, dashBoard, createFoodRequest } from "../controller/credentials.controller";
-
+import path from "path";
+import { GridFsStorage } from "multer-gridfs-storage";
+import {upload} from "../multer/multerConfig"
 const route = express.Router();
 
 route.get("/protected", authenticateJWT, (req: express.Request, res: express.Response) => {
     const user = (req as any).user;
     console.log(user);
-    
     res.status(200).json({ 
         success: true, 
         message: "You have access to this protected route!", 
@@ -18,8 +19,6 @@ route.get("/protected", authenticateJWT, (req: express.Request, res: express.Res
         state: user.state
     });
 });
-
-
 
 
 route.post("/register", registerAccount)
@@ -36,7 +35,8 @@ route.get("/location", dashBoard)
 route.post("/create", createDistributionCenter);
 
 
-route.post("/food-request", createFoodRequest)
+route.post("/food-request", upload.array("images"), createFoodRequest);
+
 
 
 

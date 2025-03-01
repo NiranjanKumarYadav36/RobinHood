@@ -185,36 +185,51 @@ export const dashBoard = async ( req: Request, res: Response ): Promise<void> =>
   }
 };
 
-
 export const createFoodRequest = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, foodName, images, description, expiryDate } = req.body;
+    const { userId, foodName, description, expiry } = req.body;
 
-    // Find the user (sponsor) by userId
+    console.log("Uploaded Files:", req.files);
+
+    if (!userId || !foodName || !expiry) {
+      res.status(400).json({ message: "User ID, food name, and expiry date are required." });
+      return;
+    }
+
     const user = await UserModel.findById(userId);
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;
     }
 
-    // Extract location details from the user
     const { city, state, location } = user;
-    const { latitude, longitude } = location;
+    if (!location || !location.latitude || !location.longitude) {
+      res.status(400).json({ message: "User location is missing" });
+      return;
+    }
 
-    // Create the food request
+    // ✅ Store relative file paths
+    const uploadedImages = req.files ? (req.files as Express.Multer.File[]).map(file => `uploads/${file.filename}`) : [];
+
+    if (uploadedImages.length === 0) {
+      res.status(400).json({ message: "At least one image is required." });
+      return;
+    }
+
     const foodRequest = await FoodRequestModel.create({
       sponsor: userId,
       foodName,
-      images,
+      images: uploadedImages, // Store relative paths
       description,
-      pickupLocation: { latitude, longitude },
+      pickupLocation: { latitude: location.latitude, longitude: location.longitude },
       city,
       state,
-      expiryDate
+      expiryDate: expiry,
     });
 
     res.status(201).json({ message: "Food request created successfully", foodRequest });
   } catch (error) {
+    console.error("Error in createFoodRequest:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
