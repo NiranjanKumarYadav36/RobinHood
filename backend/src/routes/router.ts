@@ -28,7 +28,7 @@ route.get("/logout", logoutHandle)
 route.get("/states", getStates)
 route.get("/cities/:state", getCities)
 
-route.get("/dashboard/:role", dashBoard)
+route.get("/location", dashBoard)
 
 
 
