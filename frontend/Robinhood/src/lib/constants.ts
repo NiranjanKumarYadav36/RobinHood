@@ -1,0 +1,1 @@
+export const middleOfMumbai = [72, 19];
