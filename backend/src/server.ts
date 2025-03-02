@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { connectDB } from "./config/db";
 import route from "./routes/router";
+import path from "path";
 
 config();
 
@@ -18,7 +19,8 @@ app.use(
     })
 );
 
-app.use("/uploads", express.static("uploads"))
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
 
 
 

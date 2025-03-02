@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-import axios from "axios"
 import {
   ColumnDef,
   flexRender,
@@ -14,15 +13,16 @@ import {
   TableHeader,
   TableRow,
 } from "../table"
+import axios from "axios"
+import { useAuth } from "../../../context/AuthContext"
 
 // Define the data type for a food distribution item.
 export type Distribution = {
-  _id: string
-  foodName: string
+  id: string
   images: string[] // Array of image URLs
-  description: string
+  foodName: string
+  foodDescription: string
   expiryDate: string
-  pickupLocation: { latitude: number; longitude: number }
 }
 
 // Define table columns.
@@ -38,11 +38,12 @@ export const columns: ColumnDef<Distribution>[] = [
           {distribution.images.map((img, index) => (
             <img
               key={index}
-              src={`http://localhost:5000/${img}`} // Prepend base URL
+              src={`http://localhost:5000/${img}`} // Add full backend URL
               alt={`Food image ${index + 1}`}
               className="w-10 h-10 object-cover rounded cursor-pointer"
-              onClick={() => setSelectedImage?.(`http://localhost:5000/${img}`)} // Set full image URL
+              onClick={() => setSelectedImage?.(`http://localhost:5000/${img}`)}
             />
+
           ))}
         </div>
       )
@@ -53,26 +54,17 @@ export const columns: ColumnDef<Distribution>[] = [
     header: "Food Name",
   },
   {
-    accessorKey: "description",
+    accessorKey: "foodDescription",
     header: "Food Description",
   },
   {
     accessorKey: "expiryDate",
     header: "Expiry Date",
-    cell: ({ row }) => new Date(row.original.expiryDate).toLocaleDateString(), // Format date
-  },
-  {
-    accessorKey: "pickupLocation",
-    header: "Pickup Location",
-    cell: ({ row }) => {
-      const { latitude, longitude } = row.original.pickupLocation
-      return `Lat: ${latitude}, Lng: ${longitude}`
-    },
   },
 ]
 
 // **Modal Component**
-const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null; onClose: () => void }) => {
+const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null, onClose: () => void }) => {
   if (!imageUrl) return null // Don't render if no image is selected
 
   return (
@@ -91,26 +83,39 @@ const ImageModal = ({ imageUrl, onClose }: { imageUrl: string | null; onClose: (
 export default function DistributionTable() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [data, setData] = useState<Distribution[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch data from API
+  const { user } = useAuth();
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchFoodData = async () => {
+      if (!user) return; // Ensure user is available before making the request
+
       try {
-        const response = await axios.post("http://localhost:5000/robinhood/get_food_deatils", {
-          userId: "67c3072db62388e3d074d812",
-          city: "Mumbai",
-        })
-        setData(response.data.foods)
-        setLoading(false)
+        const response = await axios.get("http://localhost:5000/robinhood/get_food_details", {
+          params: { userId: user.id, city: user.city },
+        });
+
+        const foodData = response.data.data.map((item: any) => ({
+          id: item._id,
+          images: item.images,
+          foodName: item.foodName,
+          foodDescription: item.description,
+          expiryDate: new Date(item.expiryDate).toLocaleDateString(),
+        }));
+
+        setData(foodData);
+        setLoading(false);
       } catch (err) {
-        setError("Failed to fetch food requests")
-        setLoading(false)
+        setError("Failed to load food requests.");
+        setLoading(false);
       }
-    }
-    fetchData()
-  }, [])
+    };
+
+    fetchFoodData();
+  }, [user]); // Re-fetch when user data changes
+
 
   const table = useReactTable({
     data,
@@ -126,16 +131,16 @@ export default function DistributionTable() {
 
       <div className="container mx-auto py-10">
         {loading ? (
-          <p className="text-center">Loading...</p>
+          <p className="text-center text-lg">Loading food requests...</p>
         ) : error ? (
           <p className="text-center text-red-500">{error}</p>
         ) : (
-          <Table>
-            <TableHeader>
+          <Table className="w-full border-collapse border border-gray-300 shadow-md rounded-lg">
+            <TableHeader className="bg-green-500 text-white">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className="text-left">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className="px-4 py-3 font-semibold">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -146,10 +151,14 @@ export default function DistributionTable() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                table.getRowModel().rows.map((row, index) => (
+                  <TableRow
+                    key={row.id}
+                    className={`text-gray-800 transition duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-100"
+                      } hover:bg-green-100`}
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell key={cell.id} className="px-4 py-3 border border-gray-200">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -157,13 +166,14 @@ export default function DistributionTable() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+                  <TableCell colSpan={columns.length} className="h-24 text-center text-gray-600">
+                    No results found.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+
         )}
       </div>
     </section>

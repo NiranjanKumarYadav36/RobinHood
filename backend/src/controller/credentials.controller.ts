@@ -249,38 +249,33 @@ export const createFoodRequest = async (req: Request, res: Response): Promise<vo
 
 export const getFooddetails = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, city } = req.body;
+    const { userId, city } = req.query; // Change from req.params to req.query
 
     if (!userId || !city) {
       res.status(400).json({ message: "User ID and city are required." });
       return;
     }
 
-    // Find the volunteer T2
-    const volunteerT2 = await UserModel.findById(userId);
-    if (!volunteerT2) {
-      res.status(404).json({ message: "Volunteer not found" });
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
       return;
     }
 
-    // Ensure the volunteer is assigned to the requested city
-    if (volunteerT2.city !== city) {
-      res.status(403).json({ message: "You are not authorized to access food details for this city." });
+    if (user.city !== city) {
+      res.status(403).json({ message: "Unauthorized access to food details for this city." });
       return;
     }
 
-    // Fetch food requests for the same city
-    const foods = await FoodRequestModel.find({ city });
+    const foodRequests = await FoodRequestModel.find({ city: user.city });
 
-    res.status(200).json({ message: "Food requests fetched successfully", foods });
+    res.status(200).json({
+      success: true,
+      message: "Food requests fetched successfully",
+      data: foodRequests,
+    });
   } catch (error) {
-    console.error("Error fetching food details:", error);
-    res.status(500).json({ message: "Server error", error });
+    console.error("❌ Error fetching food details:", error);
+    res.status(500).json({ success: false, message: "Server error", error });
   }
 };
-
-
-
-// volunteer id
-// task1
-// task2
